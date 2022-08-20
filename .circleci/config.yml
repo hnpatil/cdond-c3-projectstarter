@@ -142,18 +142,14 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
-
-      - run:
-          name: Run on fail status
-          command: |
-              echo "I am result of above failed job"
-          when: on_fail
       
       - destroy-environment:
-          stack-name: udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
+          stack-name: 
+            - run: echo "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
         
       - destroy-environment:
-          stack-name: udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
+          stack-name:
+            - run: echo "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
 
 workflows:
   default:
