@@ -178,14 +178,16 @@ jobs:
     <<: *alpine
     steps:
       - checkout
+      - restore_cache:
+          keys: [backend-build]
       - add_ssh_keys:
           fingerprints: ["a1:da:26:0a:ca:7a:2b:10:77:5c:bd:0b:f5:75:17:e1"]
+      - attach_workspace:
+          at: .
       - run:
           name: Install dependencies
           command: |
             apk add --update ansible
-      - attach_workspace:
-          at: .
       - run:
           name: Configure server
           command: |
