@@ -22,6 +22,10 @@ aws_cli: &aws_cli
   docker:
     - image: amazon/aws-cli
 
+alpine: &alpine
+  docker:
+    - image: python:3.7-alpine3.11
+
 jobs:
   build-frontend:
     <<: *node_image
@@ -145,7 +149,7 @@ jobs:
             >> .circleci/ansible/inventory.txt
 
       - persist_to_workspace:
-          root: ~/
+          root: .
           paths:
             - project/.circleci/ansible/inventory.txt
       
@@ -153,7 +157,7 @@ jobs:
           workflow-id: ${CIRCLE_WORKFLOW_ID:0:7}
 
   configure-infrastructure:
-    <<: *aws_cli
+    <<: *alpine
     steps:
       - checkout
       - add_ssh_keys:
@@ -161,9 +165,9 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            yum install -y tar gzip ansible
+            apk add --update ansible
       - attach_workspace:
-          at: ~/
+          at: .
       - run:
           name: Configure server
           command: |
@@ -176,6 +180,14 @@ jobs:
     <<: *node_image
     steps:
       - checkout
+      - restore_cache:
+          keys: [backend-build]
+      - run:
+          name: Install dependencies
+          command: |
+            curl https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o 'awscliv2.zip'
+            unzip awscliv2.zip
+            sudo ./aws/install
       - run:
           name: Run migrations
           command: |
@@ -193,15 +205,17 @@ jobs:
           workflow-id: ${CIRCLE_WORKFLOW_ID:0:7}   
 
   deploy-frontend:
-    <<: *aws_cli
+    <<: *node_image
     steps:
       - checkout
       - run:
           name: Install dependencies
           command: |
-            yum install -y tar gzip
+            curl https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o 'awscliv2.zip'
+            unzip awscliv2.zip
+            sudo ./aws/install
       - attach_workspace:
-          at: ~/
+          at: .
       - run:
           name: Get backend url
           command: |
