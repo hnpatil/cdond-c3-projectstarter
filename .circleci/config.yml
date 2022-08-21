@@ -178,8 +178,6 @@ jobs:
     <<: *alpine
     steps:
       - checkout
-      - restore_cache:
-          keys: [backend-build]
       - add_ssh_keys:
           fingerprints: ["a1:da:26:0a:ca:7a:2b:10:77:5c:bd:0b:f5:75:17:e1"]
       - attach_workspace:
@@ -188,10 +186,11 @@ jobs:
           name: Install dependencies
           command: |
             apk add --update ansible
+            pip install awscli
       - run:
           name: Configure server
           command: |
-            cd .circleci/ansible \
+            cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environment:
           workflow-id: ${CIRCLE_WORKFLOW_ID:0:7}   
