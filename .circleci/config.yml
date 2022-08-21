@@ -29,7 +29,6 @@ commands:
               cd ~/project/backend
               npm install
               npm run migration:revert
-              exit 1
             fi
 
 node_image: &node_image
@@ -288,10 +287,10 @@ jobs:
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
-      - destroy-environment:
-          workflow-id: ${CIRCLE_WORKFLOW_ID:0:7}
-      - revert-migrations:
-          workflow-id: ${CIRCLE_WORKFLOW_ID:0:7} 
+      #- destroy-environment:
+      #    workflow-id: ${CIRCLE_WORKFLOW_ID:0:7}
+      #- revert-migrations:
+      #    workflow-id: ${CIRCLE_WORKFLOW_ID:0:7} 
 
   smoke-test:
     <<: *alpine 
